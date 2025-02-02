@@ -83,6 +83,32 @@ class GmailMessageResponse extends GmailFilter
     }
 
     /**
+     * Get messages by ids
+     *
+     * @param array $ids
+     *
+     * @return array<string, GmailMessage>
+     * @throws \Google\Service\Exception
+     */
+    public function getByIds(array $ids)
+    {
+        $this->client->setUseBatch(true);
+        $batch = $this->service->createBatch();
+        foreach ($ids as $id) {
+            // @phpstan-ignore-next-line
+            $batch->add($this->getGmailMessageResponse($id));
+        }
+
+        $messages = $batch->execute();
+        $output = [];
+        foreach ($messages as $id => $message) {
+            $output[$id] = new GmailMessage($message, $this->client);
+        }
+
+        return $output;
+    }
+
+    /**
      * Creates a new sendable email instance
      *
      * @return Email
