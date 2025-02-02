@@ -81,6 +81,32 @@ class GmailThreadResponse extends GmailFilter
     }
 
     /**
+     * Get threads by ids
+     *
+     * @param array $ids
+     *
+     * @return array<string, GmailThread>
+     * @throws \Google\Service\Exception
+     */
+    public function getByIds(array $ids)
+    {
+        $this->client->setUseBatch(true);
+        $batch = $this->service->createBatch();
+        foreach ($ids as $id) {
+            // @phpstan-ignore-next-line
+            $batch->add($this->getGmailThreadResponse($id));
+        }
+
+        $threads = $batch->execute();
+        $output = [];
+        foreach ($threads as $id => $thread) {
+            $output[$id] = new GmailThread($thread, $this->client);
+        }
+
+        return $output;
+    }
+
+    /**
      * Modify labels of a thread
      *
      * @param GmailThread|string $threadOrThreadId
