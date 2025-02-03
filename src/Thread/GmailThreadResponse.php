@@ -220,7 +220,14 @@ class GmailThreadResponse extends GmailFilter
      */
     protected function getGmailThreadListResponse($optParams = [])
     {
-        return $this->service->users_threads->listUsersThreads('me', $optParams);
+        $responseOrRequest = $this->service->users_threads->listUsersThreads('me', $optParams);
+        if (get_class($responseOrRequest) === 'GuzzleHttp\Psr7\Request') {
+            $responseOrRequest = $this->service
+                ->getClient()
+                ->execute($responseOrRequest, 'Google_Service_Gmail_ListThreadsResponse');
+        }
+
+        return $responseOrRequest;
     }
 
     /**

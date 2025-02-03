@@ -127,7 +127,15 @@ class GmailDraftResponse extends GmailFilter
      */
     protected function getGmailDraftListResponse($optParams = [])
     {
-        return $this->service->users_drafts->listUsersDrafts('me', $optParams);
+        $responseOrRequest = $this->service->users_drafts->listUsersDrafts('me', $optParams);
+
+        if (get_class($responseOrRequest) === 'GuzzleHttp\Psr7\Request') {
+            $responseOrRequest = $this->service
+                ->getClient()
+                ->execute($responseOrRequest, 'Google_Service_Gmail_ListDraftsResponse');
+        }
+
+        return $responseOrRequest;
     }
 
     /**

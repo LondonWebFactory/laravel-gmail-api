@@ -170,9 +170,25 @@ class GmailHistoryResponse
         return $this->currentPageToken;
     }
 
+    /**
+     * List histories request to gmail
+     *
+     * @param array $optParams
+     *
+     * @return \Google_Service_Gmail_ListHistoryResponse
+     * @throws \Google\Service\Exception
+     */
     protected function getHistoryListResponse(array $optParams = [])
     {
-        return $this->service->users_history->listUsersHistory('me', $optParams);
+        $responseOrRequest = $this->service->users_history->listUsersHistory('me', $optParams);
+
+        if (get_class($responseOrRequest) === 'GuzzleHttp\Psr7\Request') {
+            $responseOrRequest = $this->service
+                ->getClient()
+                ->execute($responseOrRequest, 'Google_Service_Gmail_ListHistoryResponse');
+        }
+
+        return $responseOrRequest;
     }
 
     /**
