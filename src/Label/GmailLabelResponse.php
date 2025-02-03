@@ -140,12 +140,20 @@ class GmailLabelResponse
      *
      * @param array $optParams
      *
-     * @return \Google_Service_Gmail_ListLabelsResponse
+     * @return \Google_Service_Gmail_ListLabelsResponse|\GuzzleHttp\Psr7\Request
      * @throws \Google\Service\Exception
      */
     protected function getGmailLabelListResponse($optParams = [])
     {
-        return $this->service->users_labels->listUsersLabels('me', $optParams);
+        $responseOrRequest = $this->service->users_labels->listUsersLabels('me', $optParams);
+
+        if (get_class($responseOrRequest) === 'GuzzleHttp\Psr7\Request') {
+            $responseOrRequest = $this->service
+                ->getClient()
+                ->execute($responseOrRequest, 'Google_Service_Gmail_ListLabelsResponse');
+        }
+
+        return $responseOrRequest;
     }
 
     /**
