@@ -70,13 +70,7 @@ class GmailLabelResponse
      */
     public function get(string $labelId, array $optParams = [])
     {
-        $responseOrRequest = $this->service->users_labels->get('me', $labelId, $optParams);
-        $label = $this->executeRequest(
-            $responseOrRequest,
-            $this->client,
-            'Google_Service_Gmail_Label'
-        );
-
+        $label = $this->service->users_labels->get('me', $labelId, $optParams);
         return new GmailLabel($label);
     }
 
