@@ -4,9 +4,12 @@ namespace Skn036\Gmail\Label;
 use Skn036\Gmail\Gmail;
 use Skn036\Gmail\Facades\Gmail as GmailFacade;
 use Skn036\Gmail\Exceptions\TokenNotValidException;
+use Skn036\Gmail\Helper\GmailHelpers;
 
 class GmailLabelResponse
 {
+    use GmailHelpers;
+
     /**
      * Gmail Client
      * @var Gmail|GmailFacade
@@ -67,7 +70,13 @@ class GmailLabelResponse
      */
     public function get(string $labelId, array $optParams = [])
     {
-        $label = $this->service->users_labels->get('me', $labelId, $optParams);
+        $responseOrRequest = $this->service->users_labels->get('me', $labelId, $optParams);
+        $label = $this->executeRequest(
+            $responseOrRequest,
+            $this->client,
+            'Google_Service_Gmail_Label'
+        );
+
         return new GmailLabel($label);
     }
 
@@ -91,7 +100,14 @@ class GmailLabelResponse
     public function create(array $params, array $optParams = [])
     {
         $label = $this->paramsToLabelPayload($params);
-        $createdLabel = $this->service->users_labels->create('me', $label, $optParams);
+
+        $responseOrRequest = $this->service->users_labels->create('me', $label, $optParams);
+        $createdLabel = $this->executeRequest(
+            $responseOrRequest,
+            $this->client,
+            'Google_Service_Gmail_Label'
+        );
+
         return $this->get($createdLabel->getId());
     }
 
@@ -116,7 +132,19 @@ class GmailLabelResponse
     public function update(string $labelId, array $params, array $optParams = [])
     {
         $label = $this->paramsToLabelPayload($params);
-        $updatedLabel = $this->service->users_labels->update('me', $labelId, $label, $optParams);
+
+        $responseOrRequest = $this->service->users_labels->update(
+            'me',
+            $labelId,
+            $label,
+            $optParams
+        );
+        $updatedLabel = $this->executeRequest(
+            $responseOrRequest,
+            $this->client,
+            'Google_Service_Gmail_Label'
+        );
+
         return $this->get($updatedLabel->getId());
     }
 
@@ -132,7 +160,8 @@ class GmailLabelResponse
      */
     public function delete(string $labelId, array $optParams = [])
     {
-        $this->service->users_labels->delete('me', $labelId, $optParams);
+        $responseOrRequest = $this->service->users_labels->delete('me', $labelId, $optParams);
+        $this->executeRequest($responseOrRequest, $this->client);
     }
 
     /**
@@ -140,20 +169,17 @@ class GmailLabelResponse
      *
      * @param array $optParams
      *
-     * @return \Google_Service_Gmail_ListLabelsResponse|\GuzzleHttp\Psr7\Request
+     * @return \Google_Service_Gmail_ListLabelsResponse
      * @throws \Google\Service\Exception
      */
     protected function getGmailLabelListResponse($optParams = [])
     {
         $responseOrRequest = $this->service->users_labels->listUsersLabels('me', $optParams);
-
-        if (get_class($responseOrRequest) === 'GuzzleHttp\Psr7\Request') {
-            $responseOrRequest = $this->service
-                ->getClient()
-                ->execute($responseOrRequest, 'Google_Service_Gmail_ListLabelsResponse');
-        }
-
-        return $responseOrRequest;
+        return $this->executeRequest(
+            $responseOrRequest,
+            $this->client,
+            'Google_Service_Gmail_ListLabelsResponse'
+        );
     }
 
     /**
@@ -164,7 +190,12 @@ class GmailLabelResponse
      */
     protected function getGmailLabelResponse($id)
     {
-        return $this->service->users_labels->get('me', $id);
+        $responseOrRequest = $this->service->users_labels->get('me', $id);
+        return $this->executeRequest(
+            $responseOrRequest,
+            $this->client,
+            'Google_Service_Gmail_Label'
+        );
     }
 
     /**
