@@ -4,6 +4,7 @@ namespace Skn036\Gmail\Message;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Skn036\Gmail\Draft\Sendable\Draft;
+use Skn036\Gmail\Helper\GmailHelpers;
 use Skn036\Gmail\Message\Sendable\Email;
 use Skn036\Gmail\Message\Traits\ExtractMessage;
 use Skn036\Gmail\Gmail;
@@ -11,7 +12,7 @@ use Skn036\Gmail\Facades\Gmail as GmailFacade;
 
 class GmailMessage
 {
-    use ExtractMessage;
+    use ExtractMessage, GmailHelpers;
 
     /**
      * Message from gmail
@@ -323,7 +324,11 @@ class GmailMessage
         }
 
         $service = $this->client->initiateService();
-        $message = $service->users_messages->modify('me', $this->id, $modify, $optParams);
+        $message = $this->executeRequest(
+            $service->users_messages->modify('me', $this->id, $modify, $optParams),
+            $this->client,
+            'Google_Service_Gmail_Message'
+        );
         $this->setLabels($message->getLabelIds());
 
         return $this;
@@ -365,7 +370,11 @@ class GmailMessage
     public function trash($optParams = [])
     {
         $service = $this->client->initiateService();
-        $message = $service->users_messages->trash('me', $this->id, $optParams);
+        $message = $this->executeRequest(
+            $service->users_messages->trash('me', $this->id, $optParams),
+            $this->client,
+            'Google_Service_Gmail_Message'
+        );
         $this->setLabels($message->getLabelIds());
         return $this;
     }
@@ -380,7 +389,11 @@ class GmailMessage
     public function untrash($optParams = [])
     {
         $service = $this->client->initiateService();
-        $message = $service->users_messages->untrash('me', $this->id, $optParams);
+        $message = $this->executeRequest(
+            $service->users_messages->untrash('me', $this->id, $optParams),
+            $this->client,
+            'Google_Service_Gmail_Message'
+        );
         $this->setLabels($message->getLabelIds());
         return $this;
     }
@@ -397,7 +410,10 @@ class GmailMessage
     public function delete($optParams = [])
     {
         $service = $this->client->initiateService();
-        $service->users_messages->delete('me', $this->id, $optParams);
+        $this->executeRequest(
+            $service->users_messages->delete('me', $this->id, $optParams),
+            $this->client
+        );
     }
 
     /**

@@ -6,9 +6,12 @@ use Skn036\Gmail\Gmail;
 use Skn036\Gmail\Filters\GmailFilter;
 use Skn036\Gmail\Facades\Gmail as GmailFacade;
 use Skn036\Gmail\Exceptions\TokenNotValidException;
+use Skn036\Gmail\Helper\GmailHelpers;
 
 class GmailThreadResponse extends GmailFilter
 {
+    use GmailHelpers;
+
     /**
      * Gmail Client
      * @var Gmail|GmailFacade
@@ -76,7 +79,11 @@ class GmailThreadResponse extends GmailFilter
      */
     public function get(string $id)
     {
-        $thread = $this->getGmailThreadResponse($id);
+        $thread = $this->executeRequest(
+            $this->getGmailThreadResponse($id),
+            $this->client,
+            'Google_Service_Gmail_Thread'
+        );
         return new GmailThread($thread, $this->client);
     }
 
@@ -220,14 +227,11 @@ class GmailThreadResponse extends GmailFilter
      */
     protected function getGmailThreadListResponse($optParams = [])
     {
-        $responseOrRequest = $this->service->users_threads->listUsersThreads('me', $optParams);
-        if (get_class($responseOrRequest) === 'GuzzleHttp\Psr7\Request') {
-            $responseOrRequest = $this->service
-                ->getClient()
-                ->execute($responseOrRequest, 'Google_Service_Gmail_ListThreadsResponse');
-        }
-
-        return $responseOrRequest;
+        return $this->executeRequest(
+            $this->service->users_threads->listUsersThreads('me', $optParams),
+            $this->client,
+            'Google_Service_Gmail_ListThreadsResponse'
+        );
     }
 
     /**

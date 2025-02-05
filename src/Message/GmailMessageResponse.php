@@ -5,12 +5,15 @@ use Skn036\Gmail\Gmail;
 use Illuminate\Support\Collection;
 use Skn036\Gmail\Filters\GmailFilter;
 use Skn036\Gmail\Draft\Sendable\Draft;
+use Skn036\Gmail\Helper\GmailHelpers;
 use Skn036\Gmail\Message\Sendable\Email;
 use Skn036\Gmail\Facades\Gmail as GmailFacade;
 use Skn036\Gmail\Exceptions\TokenNotValidException;
 
 class GmailMessageResponse extends GmailFilter
 {
+    use GmailHelpers;
+
     /**
      * Gmail Client
      * @var Gmail|GmailFacade
@@ -78,7 +81,11 @@ class GmailMessageResponse extends GmailFilter
      */
     public function get(string $id)
     {
-        $message = $this->getGmailMessageResponse($id);
+        $message = $this->executeRequest(
+            $this->getGmailMessageResponse($id),
+            $this->client,
+            'Google_Service_Gmail_Message'
+        );
         return new GmailMessage($message, $this->client);
     }
 
@@ -303,7 +310,10 @@ class GmailMessageResponse extends GmailFilter
         $batchModifyRequest->setAddLabelIds($addLabelIds);
         $batchModifyRequest->setRemoveLabelIds($removeLabelIds);
 
-        return $this->service->users_messages->batchModify('me', $batchModifyRequest, $optParams);
+        return $this->executeRequest(
+            $this->service->users_messages->batchModify('me', $batchModifyRequest, $optParams),
+            $this->client
+        );
     }
 
     /**
@@ -355,7 +365,10 @@ class GmailMessageResponse extends GmailFilter
         $batchDeleteRequest = new \Google_Service_Gmail_BatchDeleteMessagesRequest();
         $batchDeleteRequest->setIds($messageIds);
 
-        return $this->service->users_messages->batchDelete('me', $batchDeleteRequest, $optParams);
+        return $this->executeRequest(
+            $this->service->users_messages->batchDelete('me', $batchDeleteRequest, $optParams),
+            $this->client
+        );
     }
 
     /**
@@ -368,15 +381,11 @@ class GmailMessageResponse extends GmailFilter
      */
     protected function getGmailMessageListResponse($optParams = [])
     {
-        $responseOrRequest = $this->service->users_messages->listUsersMessages('me', $optParams);
-
-        if (get_class($responseOrRequest) === 'GuzzleHttp\Psr7\Request') {
-            $responseOrRequest = $this->service
-                ->getClient()
-                ->execute($responseOrRequest, 'Google_Service_Gmail_ListMessagesResponse');
-        }
-
-        return $responseOrRequest;
+        return $this->executeRequest(
+            $this->service->users_messages->listUsersMessages('me', $optParams),
+            $this->client,
+            'Google_Service_Gmail_ListMessagesResponse'
+        );
     }
 
     /**

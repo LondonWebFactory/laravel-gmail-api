@@ -6,9 +6,12 @@ use Skn036\Gmail\Filters\GmailFilter;
 use Skn036\Gmail\Draft\Sendable\Draft;
 use Skn036\Gmail\Facades\Gmail as GmailFacade;
 use Skn036\Gmail\Exceptions\TokenNotValidException;
+use Skn036\Gmail\Helper\GmailHelpers;
 
 class GmailDraftResponse extends GmailFilter
 {
+    use GmailHelpers;
+
     /**
      * Gmail Client
      * @var Gmail|GmailFacade
@@ -114,7 +117,8 @@ class GmailDraftResponse extends GmailFilter
     public function delete(GmailDraft|string $draftOrDraftId, array $optParams = [])
     {
         $draftId = $draftOrDraftId instanceof GmailDraft ? $draftOrDraftId->id : $draftOrDraftId;
-        $this->service->users_drafts->delete('me', $draftId, $optParams);
+        $responseOrRequest = $this->service->users_drafts->delete('me', $draftId, $optParams);
+        $this->executeRequest($responseOrRequest, $this->client);
     }
 
     /**
@@ -128,14 +132,11 @@ class GmailDraftResponse extends GmailFilter
     protected function getGmailDraftListResponse($optParams = [])
     {
         $responseOrRequest = $this->service->users_drafts->listUsersDrafts('me', $optParams);
-
-        if (get_class($responseOrRequest) === 'GuzzleHttp\Psr7\Request') {
-            $responseOrRequest = $this->service
-                ->getClient()
-                ->execute($responseOrRequest, 'Google_Service_Gmail_ListDraftsResponse');
-        }
-
-        return $responseOrRequest;
+        return $this->executeRequest(
+            $responseOrRequest,
+            $this->client,
+            'Google_Service_Gmail_ListDraftsResponse'
+        );
     }
 
     /**
