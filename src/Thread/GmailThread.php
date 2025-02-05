@@ -3,11 +3,14 @@ namespace Skn036\Gmail\Thread;
 
 use Skn036\Gmail\Gmail;
 use Illuminate\Support\Collection;
+use Skn036\Gmail\Helper\GmailHelpers;
 use Skn036\Gmail\Message\GmailMessage;
 use Skn036\Gmail\Facades\Gmail as GmailFacade;
 
 class GmailThread
 {
+    use GmailHelpers;
+
     /**
      * Thread from gmail
      * @var \Google_Service_Gmail_Thread|\Google\Service\Gmail\Thread
@@ -99,7 +102,10 @@ class GmailThread
         }
 
         $service = $this->client->initiateService();
-        $service->users_threads->modify('me', $this->id, $modify, $optParams);
+        $this->executeRequest(
+            $service->users_threads->modify('me', $this->id, $modify, $optParams),
+            $this->client
+        );
 
         return $this->updateInstance();
     }
@@ -140,7 +146,10 @@ class GmailThread
     public function trash($optParams = [])
     {
         $service = $this->client->initiateService();
-        $service->users_threads->trash('me', $this->id, $optParams);
+        $this->executeRequest(
+            $service->users_threads->trash('me', $this->id, $optParams),
+            $this->client
+        );
         return $this->updateInstance();
     }
 
@@ -154,7 +163,10 @@ class GmailThread
     public function untrash($optParams = [])
     {
         $service = $this->client->initiateService();
-        $service->users_threads->untrash('me', $this->id, $optParams);
+        $this->executeRequest(
+            $service->users_threads->untrash('me', $this->id, $optParams),
+            $this->client
+        );
         return $this->updateInstance();
     }
 
@@ -170,7 +182,10 @@ class GmailThread
     public function delete($optParams = [])
     {
         $service = $this->client->initiateService();
-        $service->users_threads->delete('me', $this->id, $optParams);
+        $this->executeRequest(
+            $service->users_threads->delete('me', $this->id, $optParams),
+            $this->client
+        );
     }
 
     /**
@@ -236,7 +251,11 @@ class GmailThread
     protected function updateInstance()
     {
         $service = $this->client->initiateService();
-        $this->thread = $service->users_threads->get('me', $this->id);
+        $this->thread = $this->executeRequest(
+            $service->users_threads->get('me', $this->id),
+            $this->client,
+            'Google_Service_Gmail_Thread'
+        );
         return $this->prepareThread();
     }
 }

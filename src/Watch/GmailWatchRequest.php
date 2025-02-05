@@ -1,12 +1,16 @@
 <?php
 namespace Skn036\Gmail\Watch;
 
+use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use Skn036\Gmail\Gmail;
 use Skn036\Gmail\Facades\Gmail as GmailFacade;
 use Skn036\Gmail\Exceptions\TokenNotValidException;
+use Skn036\Gmail\Helper\GmailHelpers;
 
 class GmailWatchRequest
 {
+    use GmailHelpers;
+
     /**
      * Gmail Client
      * @var Gmail|GmailFacade
@@ -63,8 +67,11 @@ class GmailWatchRequest
             }
         }
 
-        $watchResponse = $this->service->users->watch('me', $watchRequest, $optParams);
-        return $watchResponse;
+        return $this->executeRequest(
+            $this->service->users->watch('me', $watchRequest, $optParams),
+            $this->client,
+            'Google_Service_Gmail_WatchResponse'
+        );
     }
 
     /**
@@ -76,6 +83,6 @@ class GmailWatchRequest
      */
     public function stop(array $optParams = [])
     {
-        $this->service->users->stop('me', $optParams);
+        $this->executeRequest($this->service->users->stop('me', $optParams), $this->client);
     }
 }

@@ -70,7 +70,12 @@ class GmailLabelResponse
      */
     public function get(string $labelId, array $optParams = [])
     {
-        $label = $this->service->users_labels->get('me', $labelId, $optParams);
+        $responseOrRequest = $this->service->users_labels->get('me', $labelId, $optParams);
+        $label = $this->executeRequest(
+            $responseOrRequest,
+            $this->client,
+            'Google_Service_Gmail_Label'
+        );
         return new GmailLabel($label);
     }
 
@@ -184,12 +189,7 @@ class GmailLabelResponse
      */
     protected function getGmailLabelResponse($id)
     {
-        $responseOrRequest = $this->service->users_labels->get('me', $id);
-        return $this->executeRequest(
-            $responseOrRequest,
-            $this->client,
-            'Google_Service_Gmail_Label'
-        );
+        return $this->service->users_labels->get('me', $id);
     }
 
     /**

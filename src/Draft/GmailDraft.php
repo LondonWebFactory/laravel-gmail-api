@@ -4,10 +4,13 @@ namespace Skn036\Gmail\Draft;
 use Skn036\Gmail\Draft\Sendable\Draft;
 use Skn036\Gmail\Gmail;
 use Skn036\Gmail\Facades\Gmail as GmailFacade;
+use Skn036\Gmail\Helper\GmailHelpers;
 use Skn036\Gmail\Message\GmailMessage;
 
 class GmailDraft
 {
+    use GmailHelpers;
+
     /**
      * Draft from gmail
      * @var \Google_Service_Gmail_Draft
@@ -75,10 +78,18 @@ class GmailDraft
     public function send(array $optParams = [])
     {
         $service = $this->client->initiateService();
-        $message = $service->users_drafts->send('me', $this->draft, $optParams);
+        $message = $this->executeRequest(
+            $service->users_drafts->send('me', $this->draft, $optParams),
+            $this->client,
+            'Google_Service_Gmail_Message'
+        );
 
         return new GmailMessage(
-            $service->users_messages->get('me', $message->getId()),
+            $this->executeRequest(
+                $service->users_messages->get('me', $message->getId()),
+                $this->client,
+                'Google_Service_Gmail_Message'
+            ),
             $this->client
         );
     }
@@ -93,7 +104,10 @@ class GmailDraft
     public function delete(array $optParams = [])
     {
         $service = $this->client->initiateService();
-        $service->users_drafts->delete('me', $this->id, $optParams);
+        $this->executeRequest(
+            $service->users_drafts->delete('me', $this->id, $optParams),
+            $this->client
+        );
     }
 
     /**

@@ -5,9 +5,12 @@ use Skn036\Gmail\Gmail;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Skn036\Gmail\Facades\Gmail as GmailFacade;
+use Skn036\Gmail\Helper\GmailHelpers;
 
 class GmailMessageAttachment
 {
+    use GmailHelpers;
+
     /**
      * Attachment MessagePart or id of the attachment
      * @var \Google_Service_Gmail_MessagePart
@@ -110,12 +113,17 @@ class GmailMessageAttachment
         }
 
         $service = $this->client->initiateService();
-        $part = $service->users_messages_attachments->get(
-            'me',
-            $this->messageId,
-            $this->id,
-            $optParams
+        $part = $this->executeRequest(
+            $service->users_messages_attachments->get(
+                'me',
+                $this->messageId,
+                $this->id,
+                $optParams
+            ),
+            $this->client,
+            'Google_Service_Gmail_MessagePart'
         );
+
         if ($part->data) {
             $this->data = $part->data;
         }

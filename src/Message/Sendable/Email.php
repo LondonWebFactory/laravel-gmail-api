@@ -3,11 +3,14 @@ namespace Skn036\Gmail\Message\Sendable;
 
 use Skn036\Gmail\Gmail;
 use Skn036\Gmail\Facades\Gmail as GmailFacade;
+use Skn036\Gmail\Helper\GmailHelpers;
 use Skn036\Gmail\Message\GmailMessage;
 use Skn036\Gmail\Message\GmailMessageResponse;
 
 class Email extends Sendable
 {
+    use GmailHelpers;
+
     /**
      * Summary of __construct
      *
@@ -31,7 +34,11 @@ class Email extends Sendable
         $postBody = $this->setGmailMessageBody();
         $service = $this->client->initiateService();
 
-        $message = $service->users_messages->send('me', $postBody, $optParams);
+        $message = $this->executeRequest(
+            $service->users_messages->send('me', $postBody, $optParams),
+            $this->client,
+            'Google_Service_Gmail_Message'
+        );
         return (new GmailMessageResponse($this->client))->get($message->getId());
     }
 
