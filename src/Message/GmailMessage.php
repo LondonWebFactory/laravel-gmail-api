@@ -557,6 +557,13 @@ class GmailMessage
         $this->textBody = $this->getBodyByContentType('text/plain', $this->allPartsIncludingNested);
         $this->htmlBody = $this->getBodyByContentType('text/html', $this->allPartsIncludingNested);
 
+        if (!$this->htmlBody && !$this->textBody) {
+            $rawBody = $this->message->getPayload()->getBody()->getData();
+            if ($rawBody) {
+                $this->htmlBody = base64_decode(strtr($rawBody, '-_', '+/'));
+            }
+        }
+
         $this->body = $this->htmlBody ?: $this->textBody;
         return $this;
     }
