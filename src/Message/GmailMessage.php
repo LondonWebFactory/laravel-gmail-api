@@ -236,16 +236,16 @@ class GmailMessage
     }
 
     /**
-     * Downloads the given attachment
-     * @param string $attachmentId
+     * Downloads the given attachment given attachment->originalId
+     * @param string $attachmentOriginalId
      *
      * @return \Symfony\Component\HttpFoundation\StreamedResponse
      * @throws \Exception
      */
-    public function downloadAttachment(string $attachmentId)
+    public function downloadAttachment(string $attachmentOriginalId)
     {
         $attachment = $this->attachments->first(
-            fn($attachment) => $attachment->id === $attachmentId
+            fn($attachment) => $attachment->originalId === $attachmentOriginalId
         );
         if (!$attachment) {
             throw new \Exception('Attachment not found');
@@ -258,16 +258,16 @@ class GmailMessage
      * Saves all attachments on the default disc in filesystem
      * if path is not given, it will save on the gmail.attachment_path on google config
      *
-     * @param string $attachmentId
+     * @param string $attachmentOriginalId
      * @param string $path
      *
      * @return string
      * @throws \Exception
      */
-    public function saveAttachment(string $attachmentId, string $path = '')
+    public function saveAttachment(string $attachmentOriginalId, string $path = '')
     {
         $attachment = $this->attachments->first(
-            fn($attachment) => $attachment->id === $attachmentId
+            fn($attachment) => $attachment->originalId === $attachmentOriginalId
         );
         if (!$attachment) {
             throw new \Exception('Attachment not found');

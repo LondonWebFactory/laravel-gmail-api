@@ -6,10 +6,11 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Skn036\Gmail\Facades\Gmail as GmailFacade;
 use Skn036\Gmail\Helper\GmailHelpers;
+use Skn036\Gmail\Message\Traits\ExtractMessage;
 
 class GmailMessageAttachment
 {
-    use GmailHelpers;
+    use GmailHelpers, ExtractMessage;
 
     /**
      * Attachment MessagePart or id of the attachment
@@ -34,6 +35,12 @@ class GmailMessageAttachment
      * @var string
      */
     public $id;
+
+    /**
+     * Unique id of the attachment. as the $id variable changes every time
+     * @var string
+     */
+    public $originalId;
 
     /**
      * Attachment filename
@@ -87,6 +94,7 @@ class GmailMessageAttachment
     protected function resolveAttachmentFromPart($part)
     {
         $this->id = $part->getBody()->getAttachmentId();
+        $this->originalId = $this->getHeaderValue('X-Attachment-Id', collect($part->getHeaders()));
         $this->filename = $part->getFilename();
         $this->mimeType = $part->getMimeType();
         $this->size = $part->getBody()->getSize();
