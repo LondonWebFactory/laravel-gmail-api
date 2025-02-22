@@ -603,6 +603,12 @@ class Sendable
         if ($address instanceof GmailMessageRecipient) {
             return $address;
         }
+        if (is_array($address) && array_key_exists('email', $address)) {
+            return new GmailMessageRecipient(
+                $address['email'],
+                array_key_exists('name', $address) ? $address['name'] : ''
+            );
+        }
         if (is_array($address)) {
             $name = count($address) > 1 ? $address[1] : null;
             return new GmailMessageRecipient($address[0], $name);

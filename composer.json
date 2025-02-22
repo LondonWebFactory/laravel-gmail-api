@@ -1,6 +1,6 @@
 {
     "name": "skn036/laravel-gmail-api",
-    "version": "1.0.8",
+    "version": "1.0.9",
     "description": "Wrapper around gmail api for laravel.",
     "keywords": [
         "Muhammad Sajedul Karim",
