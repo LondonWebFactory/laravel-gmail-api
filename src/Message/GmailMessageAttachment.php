@@ -94,7 +94,12 @@ class GmailMessageAttachment
     protected function resolveAttachmentFromPart($part)
     {
         $this->id = $part->getBody()->getAttachmentId();
+
+        // original id is important as the id changes on every request. original id should be same for the same attachment
         $this->originalId = $this->getHeaderValue('X-Attachment-Id', collect($part->getHeaders()));
+        if (!$this->originalId) {
+            $this->originalId = $part->getFilename();
+        }
         $this->filename = $part->getFilename();
         $this->mimeType = $part->getMimeType();
         $this->size = $part->getBody()->getSize();
