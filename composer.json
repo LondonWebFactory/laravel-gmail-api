@@ -1,5 +1,5 @@
 {
-    "name": "skn036/laravel-gmail-api",
+    "name": "LondonWebFactory/laravel-gmail-api",
     "version": "1.0.10",
     "description": "Wrapper around gmail api for laravel.",
     "keywords": [
