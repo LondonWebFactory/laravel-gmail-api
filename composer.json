@@ -19,7 +19,7 @@
     "require": {
         "php": "^8.2||^8.3",
         "illuminate/contracts": "^10||^11||^12",
-        "LondonWebFactory/laravel-google-client": "^1",
+        "LondonWebFactory/laravel-google-client": "^1 || dev-main",
         "symfony/mailer": "^6||^7"
     },
     "require-dev": {
